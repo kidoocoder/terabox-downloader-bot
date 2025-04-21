@@ -377,17 +377,12 @@ async def setup_webhook():
         await app.set_webhook(webhook_url)
         logger.info(f"Webhook set to {webhook_url}")
 
-# Startup function
-async def startup():
-    await setup_commands()
-    await create_test_start_image()
-    await setup_webhook()
-    logger.info("Bot startup complete!")
-
-# Shutdown function
-async def shutdown():
-    await app.stop()
-    logger.info("Bot shutdown complete!")
-
+# Main entry point
 if __name__ == "__main__":
-    app.run(startup=startup, shutdown=shutdown)
+    # Run initialization tasks before starting the bot
+    with app:
+        app.loop.run_until_complete(setup_commands())
+        app.loop.run_until_complete(create_test_start_image())
+        app.loop.run_until_complete(setup_webhook())
+        logger.info("Bot initialization complete!")
+    app.run()
